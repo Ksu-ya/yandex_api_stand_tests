@@ -1,11 +1,13 @@
 Задание № 1
 
 
-SELECT c.login,
-       COUNT (o."inDelivery")
+SELECT  c.login,
+        COUNT (o.track)
 FROM  "Couriers" AS c
-FULL OUTER JOIN "Orders" AS o ON c.id = o."courierId"
-WHERE o."inDelivery"=true GROUP BY c.login;
+INNER JOIN "Orders"  AS o ON c.id = o."courierId"
+WHERE  o."inDelivery"=true  OR finished=true  OR cancelled=true
+GROUP BY  c.login;
+
 
 
 
@@ -14,9 +16,9 @@ WHERE o."inDelivery"=true GROUP BY c.login;
 
 SELECT track,
         CASE
-          WHEN cancelled=false  AND finished=false  AND  "inDelivery"= true THEN '1'
-          WHEN cancelled=false  AND finished=true  AND  "inDelivery"= false THEN '2'
-          WHEN cancelled=true  AND finished=false  AND  "inDelivery"= false THEN '-1'
+          WHEN "inDelivery"= true THEN '1'
+          WHEN finished=true THEN '2'
+          WHEN cancelled=true THEN '-1'
           ELSE '0'
         END AS status
 FROM "Orders";
