@@ -1,70 +1,27 @@
-import sender_stand_request
 import data
-def get_user_body(first_name):
-    current_body=data.user_body.copy()
-    current_body["firstName"]=first_name
+import sender_stand_request
+
+
+def get_user_body(first_name, lastName, address,metroStation, rentTime, deliveryDate):
+    current_body = data.user_body.copy()
+    current_body["firstName"]    = first_name
+    current_body["lastName"]     = lastName
+    current_body["address"]      = address
+    current_body["metroStation"] = metroStation
+    current_body["rentTime"]     = rentTime
+    current_body["deliveryDate"] = deliveryDate
     return current_body
-def positive_assert(first_name):
-    user_body = get_user_body(first_name)
-    user_response = sender_stand_request.post_new_user(user_body)
+def positive_assert(first_name, lastName, address,metroStation, rentTime, deliveryDate):
+    user_body = get_user_body(first_name, lastName, address, metroStation, rentTime, deliveryDate)
+    user_response = sender_stand_request.post_new_order(user_body)
     assert user_response.status_code == 201
-    assert user_response.json()["authToken"] != ""
-    users_table_response = sender_stand_request.get_users_table()
-    str_user = user_body["firstName"] + "," + user_body["phone"] + "," \
-               + user_body["address"] + ",,," + user_response.json()["authToken"]
-    assert users_table_response.text.count(str_user) == 1
-def negative_assert_simbol(first_name):
-    user_body = get_user_body(first_name)
-    response = sender_stand_request.post_new_user(user_body)
-    assert response.status_code == 400
-    assert response.json()["code"] == 400
-    assert response.json()["message"] == "Имя пользователя введено некорректно. " \
-                                             "Имя может содержать только русские или латинские буквы, " \
-                                             "длина должна быть не менее 2 и не более 15 символов"
+    assert user_response.json()["track"] != ""
+    orders_trakc_response=sender_stand_request.post_new_order(user_body)
+    response=sender_stand_request.post_orders_track(user_response.json()["track"])
+    assert response.status_code == 200
 
 
-# Функция для негативной проверки
-# В ответе ошибка: "Не все необходимые параметры были переданы"
-def negative_assert_no_first_name(user_body):
-    # В переменную response сохрани результат вызова функции
-    response = sender_stand_request.post_new_user(user_body)
-
-    # Проверь, что код ответа — 400
-    assert response.status_code == 400
-
-    # Проверь, что в теле ответа атрибут "code" — 400
-    assert response.json()["code"] == 400
-
-    # Проверь текст в теле ответа в атрибуте "message"
-    assert response.json()["message"] == "Не все необходимые параметры были переданы"
 
 
-def test_create_user_2_letter_in_first_name_get_success_response():
-    positive_assert("Aa")
-def test_create_user_15_letter_in_first_name_get_success_response():
-    positive_assert("Aaaaaaaaaaaaaaa")
-def test_create_user_1_letter_in_first_name_get_error_response():
-    negative_assert_simbol("A")
-def test_create_user_16_letter_in_first_name_get_error_response():
-    negative_assert_simbol("Aaaaaaaaaaaaaaaa")
-def test_create_user_english_letter_in_first_name_get_success_response():
-    positive_assert("Dkjh")
-def test_create_user_russian_letter_in_first_name_get_success_response():
-    positive_assert("Мария")
-def test_create_user_has_space_in_first_name_get_error_response():
-    negative_assert_simbol("Fjj b HJ")
-def test_create_user_has_special_symbol_in_first_name_get_error_response():
-    negative_assert_simbol("#$%^")
-def test_create_user_has_number_in_first_name_get_error_response():
-    negative_assert_simbol("233")
-def test_create_user_no_first_name_get_error_response():
-    user_body=data.user_body.copy()
-    user_body.pop("firstName")
-    negative_assert_no_first_name(user_body)
-def test_create_user_empty_first_name_get_error_response():
-    user_body = get_user_body("")
-    negative_assert_no_first_name(user_body)
-def test_create_user_number_type_first_name_get_error_response():
-        user_body = get_user_body(12)
-        response = sender_stand_request.post_new_user(user_body)
-        assert response.status_code == 400
+def test_poluchenie_zakaza_po_trecu():
+    positive_assert("Ксения", "Яковенко", "Ленина д.1", 12, 15, "2020-06-06")

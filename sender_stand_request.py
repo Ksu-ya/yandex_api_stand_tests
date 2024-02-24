@@ -1,19 +1,20 @@
 import configuration
 import requests
 import data
-def get_docs():
-    return requests.get(configuration.URL_SERVICE + configuration.DOC_PATH)
-def get_logs():
-    return requests.get(configuration.URL_SERVICE+configuration.LOG_MAIN_PATH, params={"count":20})
-def get_users_table():
-    return requests.get(configuration.URL_SERVICE+configuration.USERS_TABLE_PATH)
-def post_new_user(body):
-    return requests.post(configuration.URL_SERVICE + configuration.CREATE_USER_PATH,  # подставляем полный url
-                         json=body,  # тут тело
-                         headers=data.headers)
-def post_products_kits(products_ids):
-    return requests.post(configuration.URL_SERVICE+configuration.PRODUCTS_KITS_PATH, json=products_ids, headers=data.headers)
 
-response = post_products_kits(data.product_ids);
-print(response.status_code, response.json())
 
+def post_new_order(body):
+    return requests.post(configuration.URL_SERVICE + configuration.ORDERS_PATH,  # подставляем полный url
+                         json=body )
+
+# = post_new_order(data.user_body);
+#print(response.status_code, response.json())
+#print({"t": response.json()["track"]})
+#print(response.url)
+def post_orders_track(track):
+    return requests.post(configuration.URL_SERVICE + configuration.ORDERS_TRACK_PATH,
+                        params={"t": track } )
+
+#response = post_orders_track();
+#print(response.url)
+#print(response.status_code, response.json())
